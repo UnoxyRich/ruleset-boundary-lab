@@ -1,0 +1,23 @@
+name: QT81 Actions bot ruleset delete probe
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  delete-unlisted-probe-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Attempt to delete protected synthetic tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set +e
+          gh api -X DELETE "repos/$GH_REPO/git/refs/tags/qt81-actions-bot-probe" >delete-result.txt 2>&1
+          status=$?
+          if [ "$status" -eq 0 ]; then
+            echo 'ACTIONS_BOT_DELETE_SUCCEEDED'
+          else
+            echo 'ACTIONS_BOT_DELETE_BLOCKED'
+            cat delete-result.txt
+          fi
